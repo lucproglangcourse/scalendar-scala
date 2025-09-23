@@ -8,24 +8,17 @@ import java.util.Locale
 /**
  * Calendar utility class that provides functionality similar to ncal
  */
-class Calendar:
-  
-  private val monthNames = Array(
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  )
-  
-  private val dayNames = Array("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa")
+class Calendar(private val l10n: LocalizationManager = new LocalizationManager()):
   
   /**
    * Display a calendar for the specified month and year
    */
   def displayMonth(year: Int, month: Int): String =
     val date = LocalDate.of(year, month, 1)
-    val monthName = monthNames(month - 1)
+    val monthName = l10n.getMonthName(month)
     val header = s"    $monthName $year"
     
-    val daysOfWeek = dayNames.mkString(" ")
+    val daysOfWeek = l10n.getAllDayNames.mkString(" ")
     
     val calendar = buildMonthGrid(year, month)
     
@@ -95,3 +88,21 @@ class Calendar:
    */
   def getDayOfWeek(year: Int, month: Int, day: Int): Int =
     LocalDate.of(year, month, day).getDayOfWeek.getValue % 7
+  
+  /**
+   * Get the localization manager used by this calendar
+   */
+  def getLocalizationManager: LocalizationManager = l10n
+
+object Calendar:
+  /**
+   * Create a Calendar with a specific locale
+   */
+  def withLocale(locale: java.util.Locale): Calendar =
+    new Calendar(new LocalizationManager(locale))
+  
+  /**
+   * Create a Calendar with a specific language
+   */
+  def withLanguage(languageTag: String): Calendar =
+    new Calendar(LocalizationManager.forLanguage(languageTag))

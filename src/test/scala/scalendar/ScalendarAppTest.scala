@@ -64,13 +64,15 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
     year2024 should include("December")
   
   test("validation methods should work correctly"):
+    val l10n = new LocalizationManager()
+    
     // Test month validation
     noException should be thrownBy:
-      ScalendarApp.validateMonth(5) // Valid month
+      ScalendarApp.validateMonth(5, l10n) // Valid month
     
     // Test year validation  
     noException should be thrownBy:
-      ScalendarApp.validateYear(2024) // Valid year
+      ScalendarApp.validateYear(2024, l10n) // Valid year
   
   test("mainargs should support expected argument combinations"):
     // Test that different argument patterns can be represented
@@ -87,3 +89,39 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
     monthAndYear._2 shouldBe defined
     yearViewFlag.value shouldBe true
     helpFlag.value shouldBe true
+
+  test("localized calendar should work with different locales"):
+    val englishCalendar = Calendar.withLanguage("en")
+    val spanishCalendar = Calendar.withLanguage("es")
+    val frenchCalendar = Calendar.withLanguage("fr")
+    
+    val englishMarch = englishCalendar.displayMonth(2024, 3)
+    val spanishMarch = spanishCalendar.displayMonth(2024, 3)
+    val frenchMarch = frenchCalendar.displayMonth(2024, 3)
+    
+    englishMarch should include("March")
+    spanishMarch should include("Marzo")
+    frenchMarch should include("Mars")
+    
+    // All should include the year
+    englishMarch should include("2024")
+    spanishMarch should include("2024")
+    frenchMarch should include("2024")
+    
+  test("localization manager should provide correct error messages"):
+    val englishL10n = new LocalizationManager(java.util.Locale.ENGLISH)
+    val spanishL10n = LocalizationManager.forLanguage("es")
+    val frenchL10n = LocalizationManager.forLanguage("fr")
+    
+    val englishError = englishL10n.getInvalidMonthError(13)
+    val spanishError = spanishL10n.getInvalidMonthError(13)
+    val frenchError = frenchL10n.getInvalidMonthError(13)
+    
+    englishError should include("Invalid month")
+    spanishError should include("Mes inválido")
+    frenchError should include("Mois invalide")
+    
+    // All should include the invalid value
+    englishError should include("13")
+    spanishError should include("13")
+    frenchError should include("13")
