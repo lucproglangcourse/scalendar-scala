@@ -52,7 +52,7 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
     helpText should not be empty
   
   test("Calendar methods should be accessible"):
-    val calendar = new scalendar.Calendar()
+    val calendar = new scalendar.Calendar
     
     // Test that core calendar functionality works
     val march2024 = calendar.displayMonth(2024, 3)

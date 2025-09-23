@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 class CalendarTest extends AnyFunSuite with Matchers:
   
-  val calendar = new Calendar()
+  val calendar = new Calendar
   
   test("getDaysInMonth should return correct number of days"):
     calendar.getDaysInMonth(2024, 1) shouldBe 31  // January

@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 class IntegrationTest extends AnyFunSuite with Matchers:
   
-  val calendar = new Calendar()
+  val calendar = new Calendar
   
   test("complete calendar workflow for known date"):
     // Test March 2024 - we know March 1, 2024 was a Friday

@@ -8,7 +8,7 @@ import java.time.LocalDate
  */
 object ScalendarApp:
   
-  private val calendar = new Calendar()
+  private val calendar = new Calendar
   
   @main
   def scalendar(
