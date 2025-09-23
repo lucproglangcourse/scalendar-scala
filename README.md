@@ -19,25 +19,27 @@ A command-line calendar utility similar to `ncal`, written in Scala.
 sbt run
 
 # Display help
-sbt "run --help"
+sbt "runMain scalendar.ScalendarApp --help"
 
 # Display specific month in current year (e.g., March)
-sbt "run 3"
+sbt "runMain scalendar.ScalendarApp --month 3"
 
 # Display specific month and year (e.g., March 2024)
-sbt "run 3 2024"
+sbt "runMain scalendar.ScalendarApp --month 3 --year 2024"
 
 # Display entire current year
-sbt "run --year"
+sbt "runMain scalendar.ScalendarApp --year-view"
 
 # Display specific year
-sbt "run --year 2024"
+sbt "runMain scalendar.ScalendarApp --year-view --year 2024"
 ```
 
 ### Command Line Options
 
 - `--help` or `-h`: Show usage information
-- `--year` or `-y`: Display entire year calendar
+- `--year-view` or `-y`: Display entire year calendar
+- `--month <int>`: Specify month (1-12) to display
+- `--year <int>`: Specify year to display
 
 ### Examples
 

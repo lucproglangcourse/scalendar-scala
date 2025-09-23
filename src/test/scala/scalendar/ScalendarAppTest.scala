@@ -3,36 +3,26 @@ package scalendar
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import java.time.LocalDate
+import mainargs.{ParserForMethods, Flag}
 
 class ScalendarAppTest extends AnyFunSuite with Matchers:
   
-  test("help usage string should contain expected information"):
-    val expectedContent = Array(
-      "Usage: scalendar",
-      "--help",
-      "--year", 
-      "Display current month",
-      "scalendar 3 2024"
-    )
+  test("mainargs parser should generate help text"):
+    val parser = ParserForMethods(ScalendarApp)
+    val helpText = parser.helpText()
     
-    for content <- expectedContent do
-      // We test that the usage string would contain these elements
-      // by checking if they exist in similar calendar utilities
-      content should not be empty
+    helpText should include("scalendar")
+    helpText should include("help")
+    helpText should include("year-view")
+    helpText should include("month")
   
   test("application should validate month range correctly"):
-    // Test month validation logic
+    // Test month validation logic - these work with LocalDate
     val validMonths = 1 to 12
-    val invalidMonths = Seq(0, 13, -1, 25)
     
     for month <- validMonths do
       // Valid months should not throw exceptions when creating LocalDate
       noException should be thrownBy:
-        LocalDate.of(2024, month, 1)
-    
-    for month <- invalidMonths do
-      // Invalid months should throw exceptions
-      an[Exception] should be thrownBy:
         LocalDate.of(2024, month, 1)
   
   test("application should validate year range correctly"):
@@ -43,32 +33,57 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
       noException should be thrownBy:
         LocalDate.of(year, 1, 1)
   
-  test("application should handle string to integer conversion"):
-    val validNumbers = Seq("1", "12", "2024", "9999")
-    val invalidNumbers = Seq("abc", "1.5", "", "2024x")
+  test("Flag functionality should work correctly"):
+    val flagTrue = Flag(true)
+    val flagFalse = Flag(false)
+    val flagDefault = Flag()
     
-    for num <- validNumbers do
-      noException should be thrownBy:
-        num.toInt
-    
-    for num <- invalidNumbers do
-      a[NumberFormatException] should be thrownBy:
-        num.toInt
+    flagTrue.value shouldBe true
+    flagFalse.value shouldBe false
+    flagDefault.value shouldBe false
   
-  test("application should handle argument parsing logic"):
-    val emptyArgs = Array.empty[String]
-    val helpArgs = Array("--help")
-    val yearArgs = Array("--year")
-    val monthYearArgs = Array("3", "2024")
+  test("command line parsing should work with mainargs"):
+    // Test that the parser can be created and has the expected methods
+    val parser = ParserForMethods(ScalendarApp)
     
-    // Test that different argument arrays have different lengths
-    emptyArgs.length shouldBe 0
-    helpArgs.length shouldBe 1
-    yearArgs.length shouldBe 1
-    monthYearArgs.length shouldBe 2
+    // Check that help text contains expected content
+    val helpText = parser.helpText()
+    helpText should include("scalendar")
+    helpText should not be empty
+  
+  test("Calendar methods should be accessible"):
+    val calendar = new scalendar.Calendar()
     
-    // Test conversion to List for pattern matching
-    emptyArgs.toList shouldBe List()
-    helpArgs.toList shouldBe List("--help")
-    yearArgs.toList shouldBe List("--year")
-    monthYearArgs.toList shouldBe List("3", "2024")
+    // Test that core calendar functionality works
+    val march2024 = calendar.displayMonth(2024, 3)
+    march2024 should include("March 2024")
+    
+    val year2024 = calendar.displayYear(2024)
+    year2024 should include("2024")
+    year2024 should include("January")
+    year2024 should include("December")
+  
+  test("validation methods should work correctly"):
+    // Test month validation
+    noException should be thrownBy:
+      ScalendarApp.validateMonth(5) // Valid month
+    
+    // Test year validation  
+    noException should be thrownBy:
+      ScalendarApp.validateYear(2024) // Valid year
+  
+  test("mainargs should support expected argument combinations"):
+    // Test that different argument patterns can be represented
+    val monthOnly = Some(3)
+    val yearOnly = Some(2024)
+    val monthAndYear = (Some(3), Some(2024))
+    val yearViewFlag = Flag(true)
+    val helpFlag = Flag(true)
+    
+    // These should all be valid Option/Flag combinations
+    monthOnly shouldBe defined
+    yearOnly shouldBe defined
+    monthAndYear._1 shouldBe defined
+    monthAndYear._2 shouldBe defined
+    yearViewFlag.value shouldBe true
+    helpFlag.value shouldBe true

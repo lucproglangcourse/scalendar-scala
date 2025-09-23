@@ -1,5 +1,6 @@
 package scalendar
 
+import mainargs.{main, arg, ParserForMethods, Flag}
 import java.time.LocalDate
 
 /**
@@ -8,99 +9,63 @@ import java.time.LocalDate
 object ScalendarApp:
   
   private val calendar = new Calendar()
-  private val usage = 
-    """Usage: scalendar [options] [month] [year]
-      |Options:
-      |  -h, --help     Show this help message
-      |  -y, --year     Display the entire year
-      |  
-      |Examples:
-      |  scalendar              Display current month
-      |  scalendar 3 2024       Display March 2024
-      |  scalendar -y           Display current year
-      |  scalendar -y 2024      Display year 2024
-      |""".stripMargin
   
-  def run(arguments: Array[String]): Unit =
-    val argList = if arguments == null then List.empty else arguments.toList
-    argList match
-      case Nil =>
+  @main
+  def scalendar(
+    @arg(name = "month", doc = "Month (1-12) to display") 
+    month: Option[Int] = None,
+    
+    @arg(name = "year", doc = "Year to display") 
+    year: Option[Int] = None,
+    
+    @arg(short = 'y', name = "year-view", doc = "Display the entire year")
+    yearView: Flag = Flag(),
+    
+    @arg(short = 'h', name = "help", doc = "Show this help message")
+    help: Flag = Flag()
+  ): Unit =
+    
+    // Handle help flag
+    if help.value then
+      println(ParserForMethods(this).helpText())
+      return
+    
+    // Handle year view
+    if yearView.value then
+      val targetYear = year.getOrElse(LocalDate.now().getYear)
+      validateYear(targetYear)
+      println(calendar.displayYear(targetYear))
+      return
+    
+    // Handle specific month/year
+    (month, year) match
+      case (Some(m), Some(y)) =>
+        validateMonth(m)
+        validateYear(y)
+        println(calendar.displayMonth(y, m))
+        
+      case (Some(m), None) =>
+        validateMonth(m)
+        val currentYear = LocalDate.now().getYear
+        println(calendar.displayMonth(currentYear, m))
+        
+      case (None, Some(y)) =>
+        validateYear(y)
+        println(calendar.displayYear(y))
+        
+      case (None, None) =>
         // No arguments - show current month
         println(calendar.displayCurrentMonth())
-        
-      case List("-h") | List("--help") =>
-        // Help option
-        println(usage)
-        
-      case List("-y") | List("--year") =>
-        // Current year
-        println(calendar.displayCurrentYear())
-        
-      case List("-y", year) =>
-        // Specific year with -y
-        try
-          val yearInt = year.toInt
-          if yearInt < 1 || yearInt > 9999 then
-            println(s"Error: Year must be between 1 and 9999")
-            sys.exit(1)
-          println(calendar.displayYear(yearInt))
-        catch
-          case _: NumberFormatException =>
-            println(s"Error: Invalid year '$year'")
-            sys.exit(1)
-        
-      case List("--year", year) =>
-        // Specific year with --year
-        try
-          val yearInt = year.toInt
-          if yearInt < 1 || yearInt > 9999 then
-            println(s"Error: Year must be between 1 and 9999")
-            sys.exit(1)
-          println(calendar.displayYear(yearInt))
-        catch
-          case _: NumberFormatException =>
-            println(s"Error: Invalid year '$year'")
-            sys.exit(1)
-        
-      case List(month) =>
-        // Month in current year
-        try
-          val monthInt = month.toInt
-          val currentYear = LocalDate.now().getYear
-          if monthInt < 1 || monthInt > 12 then
-            println(s"Error: Month must be between 1 and 12")
-            sys.exit(1)
-          println(calendar.displayMonth(currentYear, monthInt))
-        catch
-          case _: NumberFormatException =>
-            println(s"Error: Invalid month '$month'")
-            sys.exit(1)
-        
-      case List(month, year) =>
-        // Specific month and year
-        try
-          val monthInt = month.toInt
-          val yearInt = year.toInt
-          
-          if monthInt < 1 || monthInt > 12 then
-            println(s"Error: Month must be between 1 and 12")
-            sys.exit(1)
-          
-          if yearInt < 1 || yearInt > 9999 then
-            println(s"Error: Year must be between 1 and 9999")
-            sys.exit(1)
-          
-          println(calendar.displayMonth(yearInt, monthInt))
-        catch
-          case _: NumberFormatException =>
-            println(s"Error: Invalid month '$month' or year '$year'")
-            sys.exit(1)
-        
-      case _ =>
-        // Invalid arguments
-        println("Error: Invalid arguments")
-        println(usage)
-        sys.exit(1)
+  
+  def validateMonth(month: Int): Unit =
+    if month < 1 || month > 12 then
+      println(s"Error: Month must be between 1 and 12, got $month")
+      sys.exit(1)
+  
+  def validateYear(year: Int): Unit =
+    if year < 1 || year > 9999 then
+      println(s"Error: Year must be between 1 and 9999, got $year")
+      sys.exit(1)
   
   def main(args: Array[String]): Unit =
-    run(args)
+    ParserForMethods(this).runOrExit(args.toIndexedSeq): Unit
