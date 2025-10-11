@@ -246,6 +246,13 @@ The project follows modern Scala 3 conventions:
 - Include comprehensive documentation
 - Write tests for all new functionality
 
+
 ## License
 
 This project is open source. Feel free to use and modify as needed.
+
+## AI Disclosure
+
+This text contains a mix of original writing and programming with strategic use of ChatGPT via intentional prompting.
+We may also make some prompts and analyses available, similar to what my colleagues have done for their recent ongoing study of ChatGPT and Systems Programming.
+See also https://doi.org/10.6084/m9.figshare.22257274.
