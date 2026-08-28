@@ -1,9 +1,6 @@
 package scalendar
 
 import java.time._
-import java.time.format.DateTimeFormatter
-import java.time.temporal.WeekFields
-import java.util.Locale
 
 /**
  * Calendar utility class that provides functionality similar to ncal
@@ -14,7 +11,6 @@ class Calendar(private val l10n: LocalizationManager = new LocalizationManager()
    * Display a calendar for the specified month and year
    */
   def displayMonth(year: Int, month: Int): String =
-    val date = LocalDate.of(year, month, 1)
     val monthName = l10n.getMonthName(month)
     val header = s"    $monthName $year"
     
